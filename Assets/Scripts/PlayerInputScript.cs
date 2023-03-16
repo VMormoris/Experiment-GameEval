@@ -23,14 +23,30 @@ public class PlayerInputScript : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.P))
         {
-            if(GameContext.Instance.HasDifference)
-                AdvanceCounter();
+            if (GameContext.Instance.CurrentSearch == SearchType.Dual)
+            {
+                if (!GameContext.Instance.HasDifference)
+                    AdvanceCounter();
+            }
+            else
+            {
+                if (GameContext.Instance.HasDifference)
+                    AdvanceCounter();
+            }
             RegisterRT(epoch);
         }
         else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.I))
         {
-            if (!GameContext.Instance.HasDifference)
-                AdvanceCounter();
+            if(GameContext.Instance.CurrentSearch == SearchType.Dual)
+            {
+                if (GameContext.Instance.HasDifference)
+                    AdvanceCounter();
+            }
+            else
+            {
+                if (!GameContext.Instance.HasDifference)
+                    AdvanceCounter();
+            }
             RegisterRT(epoch);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.L))
