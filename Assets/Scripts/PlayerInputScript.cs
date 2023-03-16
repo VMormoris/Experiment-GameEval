@@ -1,9 +1,13 @@
+using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class PlayerInputScript : MonoBehaviour
 {
-    bool mHasRegister = false;
+    bool mHasRegisterCentral = false;
+    bool mHasRegisterPeriphery = false;
+
     float mStart = 0.0f;
 
     // Start is called before the first frame update
@@ -29,8 +33,36 @@ public class PlayerInputScript : MonoBehaviour
                 AdvanceCounter();
             RegisterRT(epoch);
         }
-        else
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.L))
+        {
+            if (GameContext.Instance.HasPeripheryDiff)
+                AdvancePeripheryCounter();
+            RegisterPeripheryRT(epoch);
+        }
+        else if(Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.J))
+        {
+            if (!GameContext.Instance.HasPeripheryDiff)
+                AdvancePeripheryCounter();
+            RegisterPeripheryRT(epoch);
+        }
+    }
+
+    private void RegisterPeripheryRT(float rt)
+    {
+        if (GameContext.Instance.CurrentSearch != SearchType.Dual)
             return;
+
+        GameContext.Instance.PeripheryReactions.Add(rt);
+        mHasRegisterPeriphery = true;
+        if (mHasRegisterCentral)
+            gameObject.SetActive(false);
+    }
+
+    private void AdvancePeripheryCounter()
+    {
+        if (GameContext.Instance.CurrentSearch != SearchType.Dual)
+            return;
+        GameContext.Instance.PeripheryAccuracy++;
     }
 
     void AdvanceCounter()
@@ -55,28 +87,33 @@ public class PlayerInputScript : MonoBehaviour
             GameContext.Instance.ConjuctionReactions.Add(rt);
         else if (GameContext.Instance.CurrentSearch == SearchType.Dual)
             GameContext.Instance.DualReactions.Add(rt);
-        mHasRegister = true;
-        gameObject.SetActive(false);
+
+        mHasRegisterCentral = true;
+        if(mHasRegisterPeriphery)
+            gameObject.SetActive(false);
     }
 
     public void Stop()
     {
-        if (mHasRegister)
-            return;
-        
-        if (GameContext.Instance.CurrentSearch == SearchType.Color)
+        if (GameContext.Instance.CurrentSearch == SearchType.Color && !mHasRegisterCentral)
             GameContext.Instance.ColorReactions.Add(-1.0f);
-        else if (GameContext.Instance.CurrentSearch == SearchType.Orientation)
+        else if (GameContext.Instance.CurrentSearch == SearchType.Orientation && !mHasRegisterCentral)
             GameContext.Instance.OrientationReactions.Add(-1.0f);
-        else if (GameContext.Instance.CurrentSearch == SearchType.Conjuction)
+        else if (GameContext.Instance.CurrentSearch == SearchType.Conjuction && !mHasRegisterCentral)
             GameContext.Instance.ConjuctionReactions.Add(-1.0f);
         else if (GameContext.Instance.CurrentSearch == SearchType.Dual)
-            GameContext.Instance.DualReactions.Add(-1.0f);
+        {
+            if(!mHasRegisterCentral)
+                GameContext.Instance.DualReactions.Add(-1.0f);
+            if (!mHasRegisterPeriphery)
+                GameContext.Instance.PeripheryReactions.Add(-1.0f);
+        }
     }
 
     public void Restart()
     {
-        mHasRegister = false;
+        mHasRegisterCentral = false;
+        mHasRegisterPeriphery = false;
         mStart = Time.realtimeSinceStartup;
     }
 

@@ -65,8 +65,12 @@ public class MenuScript : MonoBehaviour
         GameContext.Instance.StartButton.SetActive(true);
 
         GameContext.Instance.Differences.Clear();
+        GameContext.Instance.PeripheryDifferences.Clear();
         for (int i = 0; i < mDifferences.Length; i++)
+        {
             GameContext.Instance.Differences.Add(mDifferences[i]);
+            GameContext.Instance.PeripheryDifferences.Add(mDifferences[i]);
+        }
     }
 
     public void StartExperiment()
@@ -86,6 +90,7 @@ public class MenuScript : MonoBehaviour
         GameContext.Instance.OrientationReactions.Clear(); GameContext.Instance.OrientationAccuracy = 0;
         GameContext.Instance.ConjuctionReactions.Clear(); GameContext.Instance.ConjuctionAccuracy = 0;
         GameContext.Instance.DualReactions.Clear(); GameContext.Instance.DualAccuracy = 0;
+        GameContext.Instance.PeripheryReactions.Clear(); GameContext.Instance.PeripheryAccuracy = 0;
 
         PlayerInputScript script = GameContext.Instance.PlayerInput.GetComponent<PlayerInputScript>();
         if (script)
@@ -129,7 +134,7 @@ public class MenuScript : MonoBehaviour
 
     public void Save()
     {
-        const string format = "Accuracy: {0}\nReactions: {1}, {2}, {3}, {4}, {5}, {6}";
+        string format = "Accuracy: {0}\nReactions: {1}, {2}, {3}, {4}, {5}, {6}";
         SearchType curr = GameContext.Instance.CurrentSearch;
         if (curr == SearchType.Color)
         {
@@ -152,9 +157,16 @@ public class MenuScript : MonoBehaviour
         }
         else if(curr == SearchType.Dual)
         {
-            List<float> results = GameContext.Instance.DualReactions;
+            format = "Central Accuracy: {0}\nPeripheral Accuracy: {1}\nCentral Reactions: {2}, {3}, {4}, {5}, {6}, {7}\nPeripheral Reactions: {8}, {9}, {10}, {11}, {12}, {13}";
+            List<float> cres = GameContext.Instance.DualReactions;
+            List<float> pres = GameContext.Instance.PeripheryReactions;
             string filepath = string.Format("Dual-{0}.out", GameContext.Instance.Participant);
-            File.WriteAllText(filepath, string.Format(format, GameContext.Instance.DualAccuracy, results[0], results[1], results[2], results[3], results[4], results[5]));
+            File.WriteAllText(filepath, string.Format(format,
+                GameContext.Instance.DualAccuracy,
+                GameContext.Instance.PeripheryAccuracy,
+                cres[0], cres[1], cres[2], cres[3], cres[4], cres[5],
+                pres[0], pres[1], pres[2], pres[3], pres[4], pres[5]
+            ));
         }
 
         GameContext.Instance.SaveButton.SetActive(false);

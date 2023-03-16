@@ -12,21 +12,28 @@ public class LetterScript : MonoBehaviour
 
     private float mAccumulator = 0.0f;
 
+    private static char[] sLetters = { 'T', 'L' };
+
     // Start is called before the first frame update
     void Start()
     {
         int index = GameContext.Instance.NextIndex++;
-        BarInfo[] bars = GameContext.Instance.BarsToSpawn;
-        BarInfo info = bars[index];
+        LetterInfo[] letters = GameContext.Instance.LettersToSpawn;
+        LetterInfo info = letters[index];
 
-        float x = Random.Range(-1.85f, 1.85f);
-        float y = Random.Range(-1.85f, 1.85f);
-        Debug.Log(""+ index + " [" + x + ", " + y + "]");
-        transform.position = new Vector3(x, y, 0.0f);
-        transform.rotation = Quaternion.Euler(0.0f, 0.0f, info.Angle);
+        RectTransform tc = GetComponent<RectTransform>();
+        tc.position = new Vector3(info.Position.x, info.Position.y, 0.0f);
+        tc.rotation = Quaternion.Euler(0.0f, 0.0f, info.Angle);
 
         TextMeshPro text = transform.GetComponent<TextMeshPro>();
-        text.text = info.Angle == 0.0f ? "T" : "L"; 
+        text.text = info.Angle == 0.0f ? sLetters[0].ToString() : sLetters[1].ToString();
+
+        if (index == 4)//Swap characters for next test
+        {
+            char temp = sLetters[0];
+            sLetters[0] = sLetters[1];
+            sLetters[1] = temp;
+        }
     }
 
     // Update is called once per frame
